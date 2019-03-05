@@ -314,6 +314,9 @@ void            dc_star_msgs                 (dc_context_t*, const uint32_t* msg
 dc_msg_t*       dc_get_msg                   (dc_context_t*, uint32_t msg_id);
 
 
+// handle mails
+int             dc_send_mail                 (dc_context_t*, const void* mail, size_t mail_size, const char** recipients, const char* id);
+
 // handle contacts
 int             dc_may_be_valid_addr         (const char* addr);
 uint32_t        dc_lookup_contact_id_by_addr (dc_context_t*, const char* addr);
