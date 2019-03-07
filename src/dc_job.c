@@ -203,19 +203,18 @@ cleanup:
  * @param context The context object as created by dc_context_new()
  * @param mail A pointer to the mail's contents
  * @param mail_size The size of the mail in bytes
- * @param recipients_addr A clist with recipients of the mail, to be used in the envelope
+ * @param recipients An RS ('\x1e') -separated list of recipients, to be used in the envelope
  * @param rfc724_mid The message ID; only used to derive the name of the temporary file
  * @param action One of the DC_JOB_SEND_ constants
  * @param msg_id If not zero, specifies the ID of the message which will be updated after the mail is actually sent
  * @return 1=success, 0=error
  */
 static int dc_add_smtp_job(dc_context_t* context, const void* mail, size_t mail_size,
-                           const clist* recipients_addr, const char* rfc724_mid,
+                           const char* recipients, const char* rfc724_mid,
                            int action, uint32_t msg_id)
 {
 	char*            pathNfilename = NULL;
 	int              success = 0;
-	char*            recipients = NULL;
 	dc_param_t*      param = dc_param_new();
 
 	// find a free file name in the blob directory
@@ -232,7 +231,6 @@ static int dc_add_smtp_job(dc_context_t* context, const void* mail, size_t mail_
 	}
 
 	// store recipients in job param
-	recipients = dc_str_from_clist(recipients_addr, 0x1e);
 	dc_param_set(param, DC_PARAM_FILE, pathNfilename);
 	dc_param_set(param, DC_PARAM_RECIPIENTS, recipients);
 
@@ -242,7 +240,6 @@ static int dc_add_smtp_job(dc_context_t* context, const void* mail, size_t mail_
 
 cleanup:
 	dc_param_unref(param);
-	free(recipients);
 	free(pathNfilename);
 	return success;
 }
@@ -254,21 +251,13 @@ cleanup:
  * @param context The context object as created by dc_context_new()
  * @param mail A pointer to the mail's contents
  * @param mail_size The size of the mail in bytes
- * @param recipients A NULL-terminated list of recipients, to be used in the envelope
+ * @param recipients An RS ('\x1e') -separated list of recipients, to be used in the envelope
  * @param id The message ID used to derive the name of a temporary file
  * @return 1=success, 0=error
  */
-int dc_send_mail(dc_context_t* context, const void* mail, size_t mail_size, const char** recipients, const char* id)
+int dc_send_mail(dc_context_t* context, const void* mail, size_t mail_size, const char* recipients, const char* id)
 {
-	clist* recipients_addr = clist_new();
-	for (void** r = (void**) recipients; *r; r++) {
-		clist_append(recipients_addr, *r);
-	}
-
-	int success = dc_add_smtp_job(context, mail, mail_size, recipients_addr, id, DC_JOB_SEND_MSG_TO_SMTP, 0);
-
-	clist_free(recipients_addr);
-	return success;
+	return dc_add_smtp_job(context, mail, mail_size, recipients, id, DC_JOB_SEND_MSG_TO_SMTP, 0);
 }
 
 
@@ -281,7 +270,8 @@ int dc_send_mail(dc_context_t* context, const void* mail, size_t mail_size, cons
  */
 int dc_job_send_msg(dc_context_t* context, uint32_t msg_id)
 {
-	int success = 0;
+	int              success = 0;
+	char*            recipients = NULL;
 	dc_mimefactory_t mimefactory;
 	dc_mimefactory_init(&mimefactory, context);
 
@@ -350,11 +340,13 @@ int dc_job_send_msg(dc_context_t* context, uint32_t msg_id)
 
 	dc_sqlite3_commit(context->sql);
 
+	recipients = dc_str_from_clist(mimefactory.recipients_addr, "\x1e");
 	success = dc_add_smtp_job(context, mimefactory.out->str, mimefactory.out->len,
-	                          mimefactory.recipients_addr, mimefactory.rfc724_mid,
+	                          recipients, mimefactory.rfc724_mid,
 	                          DC_JOB_SEND_MSG_TO_SMTP, mimefactory.msg->id);
 
 cleanup:
+	free(recipients);
 	dc_mimefactory_empty(&mimefactory);
 	return success;
 }
@@ -457,6 +449,7 @@ cleanup:
 
 static void dc_send_mdn(dc_context_t* context, uint32_t msg_id)
 {
+	char*            recipients = NULL;
 	dc_mimefactory_t mimefactory;
 	dc_mimefactory_init(&mimefactory, context);
 
@@ -471,11 +464,13 @@ static void dc_send_mdn(dc_context_t* context, uint32_t msg_id)
 
 	//char* t1=dc_null_terminate(mimefactory.out->str,mimefactory.out->len);printf("~~~~~MDN~~~~~\n%s\n~~~~~/MDN~~~~~",t1);free(t1); // DEBUG OUTPUT
 
+	recipients = dc_str_from_clist(mimefactory.recipients_addr, "\x1e");
 	dc_add_smtp_job(context, mimefactory.out->str, mimefactory.out->len,
-	                mimefactory.recipients_addr, mimefactory.rfc724_mid,
+	                recipients, mimefactory.rfc724_mid,
 	                DC_JOB_SEND_MDN, 0);
 
 cleanup:
+	free(recipients);
 	dc_mimefactory_empty(&mimefactory);
 }
 
