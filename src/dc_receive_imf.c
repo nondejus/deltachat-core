@@ -1061,7 +1061,7 @@ void dc_receive_imf(dc_context_t* context, const char* imf_raw_not_terminated, s
 	normally, this is done by mailimf_message_parse(), however, as we also need the MIME data,
 	we use mailmime_parse() through dc_mimeparser (both call mailimf_struct_multiple_parse() somewhen, I did not found out anything
 	that speaks against this approach yet) */
-	dc_mimeparser_parse(mime_parser, imf_raw_not_terminated, imf_raw_bytes);
+	dc_mimeparser_parse(mime_parser, imf_raw_not_terminated, imf_raw_bytes, context->receive_cb);
 	if (dc_hash_cnt(&mime_parser->header)==0) {
 		dc_log_info(context, 0, "No header.");
 		goto cleanup; /* Error - even adding an empty record won't help as we do not know the message ID */

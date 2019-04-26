@@ -72,6 +72,7 @@ struct _dc_context
 	pthread_mutex_t  oauth2_critical;
 
 	dc_callback_t    cb;                    /**< Internal */
+	dc_receive_cb_t  receive_cb;            /**< Internal, may be NULL */
 
 	char*            os_name;               /**< Internal, may be NULL */
 

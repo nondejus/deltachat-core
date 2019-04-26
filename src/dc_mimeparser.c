@@ -1486,7 +1486,7 @@ static void hash_header(dc_hash_t* out, const struct mailimf_fields* in, dc_cont
  *     body_not_terminated is null-terminated, use strlen(body_not_terminated) here.
  * @return None.
  */
-void dc_mimeparser_parse(dc_mimeparser_t* mimeparser, const char* body_not_terminated, size_t body_bytes)
+void dc_mimeparser_parse(dc_mimeparser_t* mimeparser, const char* body_not_terminated, size_t body_bytes, dc_receive_cb_t receive_cb)
 {
 	int    r = 0;
 	size_t index = 0;
@@ -1506,6 +1506,10 @@ void dc_mimeparser_parse(dc_mimeparser_t* mimeparser, const char* body_not_termi
 	dc_e2ee_decrypt(mimeparser->context, mimeparser->mimeroot, mimeparser->e2ee_helper);
 
 	//printf("after decryption:\n"); mailmime_print(mimeparser->mimeroot);
+
+	if (receive_cb) {
+		receive_cb(mimeparser->context, mimeparser->mimeroot);
+	}
 
 	/* recursively check, whats parsed, this also sets up header_old */
 	dc_mimeparser_parse_mime_recursive(mimeparser, mimeparser->mimeroot);

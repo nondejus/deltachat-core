@@ -414,6 +414,25 @@ char* dc_get_blobdir(const dc_context_t* context)
 }
 
 
+/**
+ * Install a callback for low-level processing of incoming mails.
+ *
+ * The callback can inspect and modify the decrypted and parsed MIME structure
+ * of new messages before they are processed and stored in the database.
+ * @memberof dc_context_t
+ * @param context The context object as created by dc_context_new().
+ * @param receive_cb The callback which is called for every new message
+ */
+void dc_set_receive_cb(dc_context_t* context, dc_receive_cb_t receive_cb)
+{
+	if (context==NULL || context->magic!=DC_CONTEXT_MAGIC) {
+		return;
+	}
+
+	context->receive_cb = receive_cb;
+}
+
+
 /*******************************************************************************
  * INI-handling, Information
  ******************************************************************************/

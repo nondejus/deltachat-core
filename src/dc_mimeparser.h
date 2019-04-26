@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 
+#include "deltachat_lowlevel.h"
 #include "dc_hash.h"
 #include "dc_param.h"
 
@@ -72,7 +73,7 @@ dc_mimeparser_t*  dc_mimeparser_new                    (const char* blobdir, dc_
 void             dc_mimeparser_unref                  (dc_mimeparser_t*);
 void             dc_mimeparser_empty                  (dc_mimeparser_t*);
 
-void             dc_mimeparser_parse                  (dc_mimeparser_t*, const char* body_not_terminated, size_t body_bytes);
+void             dc_mimeparser_parse                  (dc_mimeparser_t*, const char* body_not_terminated, size_t body_bytes, dc_receive_cb_t receive_cb);
 
 
 /* the following functions can be used only after a call to dc_mimeparser_parse() */
