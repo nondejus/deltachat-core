@@ -1,11 +1,12 @@
-#ifndef __DELTACHAT_LOWLEVEL_H__
-#define __DELTACHAT_LOWLEVEL_H__
+#ifndef __DELTACHAT_MIME_H__
+#define __DELTACHAT_MIME_H__
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
 #include <libetpan/libetpan.h>
+#include "deltachat.h"
 
 
 /**
@@ -18,7 +19,7 @@ extern "C" {
  *   so if DeltaChat Core switches libraries, the low-level callbacks will also
  *   change.
  */
-typedef void (*dc_receive_cb_t) (dc_context_t*, struct mailmime* mime);
+typedef void (*dc_receive_cb_t) (dc_context_t* context, struct mailmime* mime);
 
 
 void dc_set_receive_cb (dc_context_t*, dc_receive_cb_t receive_cb);
@@ -27,4 +28,4 @@ void dc_set_receive_cb (dc_context_t*, dc_receive_cb_t receive_cb);
 #ifdef __cplusplus
 }
 #endif
-#endif // __DELTACHAT_LOWLEVEL_H__
+#endif // __DELTACHAT_MIME_H__

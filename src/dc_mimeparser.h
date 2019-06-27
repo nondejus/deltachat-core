@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 
-#include "deltachat_lowlevel.h"
+#include "deltachat_mime.h"
 #include "dc_hash.h"
 #include "dc_param.h"
 
