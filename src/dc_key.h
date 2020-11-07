@@ -62,4 +62,3 @@ void      dc_wipe_secret_mem              (void* buf, size_t buf_bytes);
 } /* /extern "C" */
 #endif
 #endif /* __DC_KEY_H__ */
-
